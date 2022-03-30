@@ -6,8 +6,15 @@
 
 class Board {
     private:
-        std::vector<int> ocuppied_slots
-}
+        std::vector<std::tuple<int, int, int>> ocuppied_slots_;
+
+    public:
+        virtual ~Board() {};
+        void PrintBoard();
+        bool VerifyMove(std::tuple<int,int,int> move);
+        void MakeMove(std::tuple<int,int,int> move);
+
+};
 
 
 #endif //BOARD_H
