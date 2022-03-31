@@ -6,9 +6,10 @@
 
 class Board {
     private:
-        std::vector<std::tuple<int, int, int>> ocuppied_slots_;
+        std::vector<std::array<int, 3>> ocuppied_slots_;
 
     public:
+        Board();
         virtual ~Board() {};
         void PrintBoard();
         bool VerifyMove(std::tuple<int,int,int> move);

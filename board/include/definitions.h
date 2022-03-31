@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <cstdint>
 #include <vector>
+#include <array>
 
 #define BOARD_SIZE 8
 

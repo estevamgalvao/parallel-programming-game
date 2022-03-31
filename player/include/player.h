@@ -2,14 +2,16 @@
 #define PLAYER_H
 
 #include "definitions.h"
-#include "board.h"
+// #include "board.h"
 
 class Player {
     private:
-        Board private_board_;
+        int id_;
+        // Board private_board_;
 
     public:
         virtual ~Player() {};
+        Player(int id);
         void PickMove();
 
 };
