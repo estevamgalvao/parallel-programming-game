@@ -11,8 +11,8 @@ int main(int argc, char const *argv[])
     tabuleiro.PrintBoard();
     tabuleiro.MakeMove(7, 7, 2);
     tabuleiro.PrintBoard();
-    // tabuleiro.MakeMove(1, 2, 2);
-    // tabuleiro.PrintBoard();
-    // tabuleiro.PrintBoard();
+
+    
+
     return 0;
 }

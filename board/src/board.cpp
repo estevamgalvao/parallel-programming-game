@@ -37,7 +37,7 @@ bool Board::VerifyMove(int x, int y, int player_id) {
     y += 1;
     if (slots_[x][y] != 0)
     {   
-        printf("Posição já ocupada.\n");
+        // printf("Posição já ocupada.\n");
         return false;
     }
     else
@@ -48,7 +48,7 @@ bool Board::VerifyMove(int x, int y, int player_id) {
             {   
                 if (slots_[x+i][y+j] == player_id)
                 {
-                    printf("Posição permitida.\n");
+                    // printf("Posição permitida.\n");
                     return true;
                 }
                 // std::cout << "Pixel: ";
@@ -56,7 +56,7 @@ bool Board::VerifyMove(int x, int y, int player_id) {
             }
         }
     }
-    printf("Posição inválida.\n");
+    // printf("Posição inválida.\n");
     return false;
 }
 
@@ -64,7 +64,7 @@ void Board::MakeMove(int x, int y, int player_id) {
     
     if (VerifyMove(x, y, player_id))
     {   
-        printf("Escrevendo. %d %d\n", x, y);
+        // printf("Escrevendo. %d %d\n", x, y);
         this->slots_[x+1][y+1] = player_id;
     }
 }
