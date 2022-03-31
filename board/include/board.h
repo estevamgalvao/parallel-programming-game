@@ -7,6 +7,7 @@
 class Board {
     private:
         std::vector<std::array<int, 3>> ocuppied_slots_;
+        std::array<std::array<int, BOARD_SIZE>, BOARD_SIZE> slots_;
 
     public:
         Board();

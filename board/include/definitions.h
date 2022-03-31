@@ -1,11 +1,15 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
+#include <algorithm>
+#include <array>
+#include <cstdint>
 #include <iostream>
 #include <stdint.h>
-#include <cstdint>
 #include <vector>
-#include <array>
+
+#include <sys/types.h>
+#include <unistd.h>
 
 #define BOARD_SIZE 8
 
