@@ -3,7 +3,7 @@ CXX = g++
 CXXFLAGS = -W -Wall -std=c++11 -lm -g -I$(IDIR)
 
 SDIR = src
-IDIR = player/include
+IDIR = include
 ODIR = obj
 
 NAME = main

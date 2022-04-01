@@ -8,11 +8,16 @@ class Player {
     private:
         int id_;
         // Board private_board_;
+        int *slotss_;
+        int shm_id_;
+        key_t key_;
 
     public:
-        virtual ~Player() {};
         Player(int id);
+        virtual ~Player();
         void PickMove();
+
+        void PrintBoard();
 
 };
 

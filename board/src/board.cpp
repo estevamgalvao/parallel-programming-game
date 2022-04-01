@@ -3,12 +3,31 @@
 
 
 Board::Board() {
-    slots_ = {};
-    // slots_[0+1][0+1] = 1;
-    slots_[0+1][6+1] = 1;
-    slots_[7+1][1+1] = 2;
-    slots_[7+1][6+1] = 2;
+    key_ = ftok(KEY_PATH, KEY_ID);
+
+    shm_id_ = shmget(key_, BOARD_SIZE*BOARD_SIZE * sizeof(int), 0666 | IPC_CREAT); 
+    //0666 soma das permisões (permisão pra tudo)
+    //IPC CREAT se não tem memória compartilhada com essa chave, cria
+    slotss_ = (int*) shmat(shm_id_, NULL, 0);
+
+    for (size_t i = 0; i < BOARD_SIZE*BOARD_SIZE; i++)
+    {
+        slotss_[i] = 0;
+    }
+    slotss_[4] = 1;
+    // slots_ = {};
+
+    // // slots_[0+1][0+1] = 1;
+    // // slots_[0+1][6+1] = 1;
+    // // slots_[7+1][1+1] = 2;
+    // // slots_[7+1][6+1] = 2;
+    // // slots_[7+1][4+1] = 1;
 };
+
+Board::~Board() {
+    shmdt(slotss_);
+    shmctl(shm_id_, IPC_RMID, NULL);
+}
 
 
 void Board::PrintBoard() {
@@ -16,10 +35,10 @@ void Board::PrintBoard() {
     {
         for (int j = 0; j < BOARD_SIZE; j++)
         {   
-            if (slots_[i+1][j+1] != 0)
+            if (slotss_[i*BOARD_SIZE + j] != 0)
             {  
                 std::cout << "[";
-                std::cout << slots_[i+1][j+1];
+                std::cout << slotss_[i*BOARD_SIZE + j];
                 std::cout << "] ";
             }
             else {
@@ -37,7 +56,7 @@ bool Board::VerifyMove(int x, int y, int player_id) {
     y += 1;
     if (slots_[x][y] != 0)
     {   
-        // printf("Posição já ocupada.\n");
+        printf("Posição já ocupada.\n");
         return false;
     }
     else
