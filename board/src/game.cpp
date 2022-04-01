@@ -28,6 +28,9 @@ int main(int argc, char const *argv[])
         execvp(PLAYER_EXEC_PATH, player_id2);
     }
 
+    // deixar printando sem parar o tabuleiro dando clear e print
+    
+
     // printf("waitpid");
     waitpid(p_id1, &p_status1, 0); // é pretendido que seja blocante
     waitpid(p_id2, &p_status2, 0); // é pretendido que seja blocante
