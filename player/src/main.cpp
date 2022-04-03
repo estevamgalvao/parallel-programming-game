@@ -17,6 +17,8 @@ int main(int argc, char const *argv[])
     std::cout << player_id << std::endl;
 
     player.PrintBoard();
+    player.PrintBoard(1);
+
 
     player.~Player();
     return 0;

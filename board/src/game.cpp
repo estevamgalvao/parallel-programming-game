@@ -28,6 +28,8 @@ int main(int argc, char const *argv[])
         execvp(PLAYER_EXEC_PATH, player_id2);
     }
 
+
+
     // deixar printando sem parar o tabuleiro dando clear e print
     
 

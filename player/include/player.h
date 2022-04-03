@@ -2,13 +2,15 @@
 #define PLAYER_H
 
 #include "definitions.h"
-// #include "board.h"
+#include "board.h"
 
 class Player {
     private:
         int id_;
-        // Board private_board_;
-        int *slotss_;
+        int pieces_counter_;
+        int* slotss_;
+        int* private_board_;
+        /* Atributes intended to establish the shared memory link */
         int shm_id_;
         key_t key_;
 
@@ -16,8 +18,7 @@ class Player {
         Player(int id);
         virtual ~Player();
         void PickMove();
-
-        void PrintBoard();
+        void PrintBoard(int which_board = 0);
 
 };
 
