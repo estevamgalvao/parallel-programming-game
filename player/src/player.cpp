@@ -175,20 +175,26 @@ bool Player::VerifyMove(int x, int y, int which_board) {
     return false;
 };
 
-void Player::MakeMove(int x, int y, int which_board) {
-    int* board;
+int Player::MakeMove(int x, int y, int which_board) {
+    // int* board;
     int d = 8 * x + y; // distance inside the memory array 1D as if it was 2D
     
-    if (!which_board) {
-        printf("peguei a memória compartilhada\n");
-        board = slotss_;
-    }
-    else{
-        printf("peguei o tabuleiro privado\n");
-        board = private_board_;
+    if (this->VerifyMove(x, y, 0))
+    {
+        if (!which_board) {
+            printf("peguei a memória compartilhada\n");
+        // board = slotss_;
+            slotss_[d] = id_;
+            return 1;
+        }
+        else {
+        // printf("peguei o tabuleiro privado\n");
+        // board = private_board_;
+            private_board_[d] = id_;
+            return 2;
+        }        
     }
     
-    if(this->VerifyMove(x, y, which_board)) {
-        board[d] = id_;
-    }
+
+    return 0;
 }
