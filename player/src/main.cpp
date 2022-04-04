@@ -17,10 +17,11 @@ int main(int argc, char const *argv[])
     std::cout << "entrei no jogo ";    
     std::cout << player_id << std::endl;
 
-    // player.PrintBoard();
-    // player.PrintBoard(1);
-    player.VerifyMove(0,0,0); // não está entrando nessa função.
-
+    player.PrintBoard();
+    // std::cout << player.VerifyMove(0,2,1) << std::endl; // não está entrando nessa função.
+    player.MakeMove(0,2);
+    player.MakeMove(1,1);
+    player.PrintBoard();
 
     player.~Player();
     return 0;

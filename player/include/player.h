@@ -18,7 +18,9 @@ class Player {
         Player(int id);
         virtual ~Player();
         bool VerifyMove(int x, int j, int which_board = 0);
+        void MakeMove(int x, int j, int which_board = 0);
         void PrintBoard(int which_board = 0);
+
 
 };
 
