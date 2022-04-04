@@ -15,6 +15,7 @@ Board::Board() {
         slotss_[i] = 0;
     }
     slotss_[4] = 1;
+    // slotss_[0] = 1;
     // slots_ = {};
 
     // // slots_[0+1][0+1] = 1;

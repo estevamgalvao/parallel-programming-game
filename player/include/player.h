@@ -17,7 +17,7 @@ class Player {
     public:
         Player(int id);
         virtual ~Player();
-        void PickMove();
+        bool VerifyMove(int x, int j, int which_board = 0);
         void PrintBoard(int which_board = 0);
 
 };
