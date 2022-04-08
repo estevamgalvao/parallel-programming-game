@@ -14,15 +14,9 @@ Board::Board() {
     {
         slotss_[i] = 0;
     }
-    slotss_[1] = 1;
-    slotss_[8] = 1;
-    // slots_ = {};
-
-    // // slots_[0+1][0+1] = 1;
-    // // slots_[0+1][6+1] = 1;
-    // // slots_[7+1][1+1] = 2;
-    // // slots_[7+1][6+1] = 2;
-    // // slots_[7+1][4+1] = 1;
+    /* initial positions hard coded - i can change that after if i've time*/
+    slotss_[5] = 1;
+    slotss_[60] = 2;
 };
 
 Board::~Board() {

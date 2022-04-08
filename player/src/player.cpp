@@ -12,17 +12,14 @@ Player::Player(int id) {
     slotss_ = (int*) shmat(shm_id_, NULL, 0);
 
     private_board_ = (int*) calloc(BOARD_SIZE*BOARD_SIZE, sizeof(int));
-    private_board_[1] = 1;
-    private_board_[8] = 1;
-
-
+    private_board_[5] = 1;
+    private_board_[60] = 2;
 }
 
 Player::~Player() {
     shmdt(slotss_); //largando o ponteiro compartilhado (o pai que dá o free da memoria)
     // free(private_board_);
 }
-
 
 void Player::PrintBoard(int which_board) {
 
@@ -194,7 +191,5 @@ int Player::MakeMove(int x, int y, int which_board) {
             return 2;
         }        
     }
-    
-
     return 0;
 }

@@ -1,6 +1,6 @@
 #include "board.h"
 
-int main(int argc, char const *argv[])
+int main()
 {
     /* code */
     Board tabuleiro;
@@ -11,13 +11,14 @@ int main(int argc, char const *argv[])
     
     // tabuleiro.MakeMove(7, 0, 1);
 
-    char* player_id1[] = {PLAYER_EXEC_PATH, "1", NULL};
+    char* player_id1[] = {PLAYER_EXEC_PATH, "1", NULL}; //many warnings related to these lines
     char* player_id2[] = {PLAYER_EXEC_PATH, "2", NULL};
     
     p_id1 = fork();
 
     if (p_id1 == 0)
     {
+        // system("gnome terminal");
         execvp(PLAYER_EXEC_PATH, player_id1);
     }
 
@@ -28,9 +29,12 @@ int main(int argc, char const *argv[])
         execvp(PLAYER_EXEC_PATH, player_id2);
     }
 
-
-
-    // deixar printando sem parar o tabuleiro dando clear e print
+    while (true)
+    {
+        // system("clear");
+        tabuleiro.PrintBoard();
+        sleep(3);
+    }
     
 
     // printf("waitpid");
