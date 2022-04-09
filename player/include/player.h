@@ -26,7 +26,7 @@ class Player {
         int MakeMove(int x, int j, int which_board = 0);
         void PrintBoard(int which_board = 0);
 
-        void Play(); //inicializar a primeira posição também
+        void Play(int which_board = 0); //inicializar a primeira posição também
         int PickAMove(int x, int j, int which_board = 0);
 
 };

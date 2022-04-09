@@ -16,9 +16,9 @@ int main(int argc, char const *argv[])
 
     printf("Jogador %d entrou no jogo.\n", player_id);
 
-    int x, y, i = 0;
+    // int x, y, i = 0;
 
-    player.Play();
+    player.Play(1);
     
     
 

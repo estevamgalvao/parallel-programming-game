@@ -15,7 +15,7 @@ Board::Board() {
         slotss_[i] = 0;
     }
     /* initial positions hard coded - i can change that after if i've time*/
-    slotss_[5] = 1;
+    slotss_[3] = 1;
     slotss_[60] = 2;
 };
 

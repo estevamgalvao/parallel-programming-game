@@ -12,10 +12,12 @@ Player::Player(int id) {
     slotss_ = (int*) shmat(shm_id_, NULL, 0);
 
     private_board_ = (int*) calloc(BOARD_SIZE*BOARD_SIZE, sizeof(int));
-    private_board_[5] = 1;
+    private_board_[3] = 1;
     private_board_[60] = 2;
 
-    picked_pos_.push_back(std::pair<int, int>(0,5));
+    picked_pos_.push_back(std::pair<int, int>(0,3));
+
+    pieces_counter_ = 0;
 }
 
 Player::~Player() {
@@ -180,6 +182,7 @@ int Player::MakeMove(int x, int y, int which_board) {
     int i = this->PickAMove(x, y, which_board);
     int target_x, target_y;
 
+    printf("Valor recebido da função PickAMove, i = %d\n", i);
 
     if(i) {
         switch (i)
@@ -217,16 +220,16 @@ int Player::MakeMove(int x, int y, int which_board) {
             target_y = y + 1;
             break;
         default:
-            printf("deu bigode %d\n", i);
+            printf("Switch case i != [-9..9]. Não era pra entrar aqui. i = %d\n", i);
             break;
         }
-    slotss_[d+i] = id_;
-    private_board_[d+i] = id_;
-    picked_pos_.push_back(std::pair<int, int>(target_x, target_y));
-    return 1;
+        slotss_[d+i] = id_;
+        private_board_[d+i] = id_;
+        picked_pos_.push_back(std::pair<int, int>(target_x, target_y));
+        return 1;
     }
     else {
-        printf("verdadeiro bigode %d\n", i);
+        printf("Erro na função MakeMove, vou retonar 0. i = %d\n", i);
     }
     // if (!which_board) {
     //     printf("peguei a memória compartilhada\n");
@@ -257,11 +260,11 @@ int Player::PickAMove(int x, int y, int which_board) {
         board = private_board_;
     }
 
-    if (board[d] != 0)
-    {
-        // printf("Posição já ocupada.\n");
-        return false;
-    }
+    // if (board[d] != 0)
+    // {
+    //     // printf("Posição já ocupada.\n");
+    //     return false;
+    // }
     
     /* not border spots */
     if(x > 0 && y > 0 && x < BOARD_SIZE-1 && y < BOARD_SIZE-1) {
@@ -318,6 +321,7 @@ int Player::PickAMove(int x, int y, int which_board) {
                 // printf("estou na borda x = 0 mas não sou [0,0] ou [0,7]\n");
                 for (int i = -1; i <= 1; i++)
                 {
+                    printf("Estou dentro da função PickAMove. Valor de i = %d\n", i);
                     if (board[d+i] == 0) {return i;}
                 }
 
@@ -366,24 +370,30 @@ int Player::PickAMove(int x, int y, int which_board) {
 };
 
 
-void Player::Play() {
+void Player::Play(int which_board) {
     bool flag = true;
+    bool flag2;
 
     while(flag) {
-
-        for (auto it = picked_pos_.end(); it != picked_pos_.begin(); it--)
+        printf("Entrei no while.\n");
+        for (auto it = picked_pos_.end() - 1; it != picked_pos_.begin() - 1; it--)
         {
-            if (this->MakeMove(it->first, it->second))
+            flag2 = true;
+            printf("Coordenada atual do vetor: [%d, %d]\n", it->first, it->second);
+            if (this->MakeMove(it->first, it->second, which_board))
             {
-                this->PrintBoard(1);
+                // this->PrintBoard(1);
                 printf("Marquei.\n");
+                flag2 = false; // quero verificar se eu saí do loop por q marquei no tabuleiro e atualizei o vetor
                 sleep(2);
                 break;
             }
-            else {
-                flag = false;
-            }
+        }
+        if (flag2) { // se a flag2 for false, significa q eu sai do for pq quis e não é pra sair o while, é pra varrer o for atualizado de novo 
+            flag = false;
         }
     }
+
+    printf("\nParei de jogar. Não achei nenhuma posição válida no vetor.\n");
     
 }
