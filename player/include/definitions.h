@@ -19,5 +19,6 @@
 #define BOARD_SIZE 8
 
 typedef u_int8_t UINT8;
+typedef std::vector<std::pair<int, int>> COORD_VECTOR;
 
 #endif

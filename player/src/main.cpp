@@ -18,15 +18,21 @@ int main(int argc, char const *argv[])
 
     int x, y, i = 0;
 
-    while (i < 10)
-    {
-        player.PrintBoard();
-        printf("JOGADOR %d - Insira sua jogada: ", player_id);
-        scanf("%d %d", &x, &y);
-        player.MakeMove(x, y);
-        sleep(1);
-        i++;
-    }
+    player.Play();
+    
+    
+
+    // while (i < 10)
+    // {
+    //     player.PrintBoard();
+    //     printf("JOGADOR %d - Insira sua jogada: ", player_id);
+    //     scanf("%d %d", &x, &y);
+    //     player.MakeMove(x, y);
+    //     sleep(1);
+    //     i++;
+    // }
+
+
     
     // player.PrintBoard();
     // // std::cout << player.VerifyMove(0,2,1) << std::endl; // não está entrando nessa função.

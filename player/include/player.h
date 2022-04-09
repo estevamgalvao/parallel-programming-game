@@ -8,8 +8,13 @@ class Player {
     private:
         int id_;
         int pieces_counter_;
+        
+
         int* slotss_;
         int* private_board_;
+        COORD_VECTOR picked_pos_;
+        COORD_VECTOR blocked_pos_;
+
         /* Atributes intended to establish the shared memory link */
         int shm_id_;
         key_t key_;
@@ -21,6 +26,8 @@ class Player {
         int MakeMove(int x, int j, int which_board = 0);
         void PrintBoard(int which_board = 0);
 
+        void Play(); //inicializar a primeira posição também
+        int PickAMove(int x, int j, int which_board = 0);
 
 };
 
