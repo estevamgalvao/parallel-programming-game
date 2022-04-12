@@ -9,14 +9,15 @@ class Player {
         int id_;
         int pieces_counter_;
         
-
         int* slotss_;
         int* private_board_;
         COORD_VECTOR picked_pos_;
         COORD_VECTOR blocked_pos_;
 
+        struct sembuf get_sem_, release_sem_;
+
         /* Atributes intended to establish the shared memory link */
-        int shm_id_;
+        int shm_id_, sem_id_;
         key_t key_;
 
     public:

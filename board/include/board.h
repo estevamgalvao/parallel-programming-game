@@ -9,7 +9,7 @@ class Board {
     private:
         std::array<std::array<int, BOARD_SIZE + 2>, BOARD_SIZE + 2> slots_;
         int *slotss_;
-        int shm_id_;
+        int shm_id_, sem_id_;
         key_t key_;
 
 

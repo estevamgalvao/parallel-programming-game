@@ -22,12 +22,12 @@ int main()
         execvp(PLAYER_EXEC_PATH, player_id1);
     }
 
-    // p_id2 = fork();
+    p_id2 = fork();
 
-    // if (p_id2 == 0)
-    // {
-    //     execvp(PLAYER_EXEC_PATH, player_id2);
-    // }
+    if (p_id2 == 0)
+    {
+        execvp(PLAYER_EXEC_PATH, player_id2);
+    }
 
     while (true)
     {
@@ -39,7 +39,7 @@ int main()
 
     // printf("waitpid");
     waitpid(p_id1, &p_status1, 0); // é pretendido que seja blocante
-    // waitpid(p_id2, &p_status2, 0); // é pretendido que seja blocante
+    waitpid(p_id2, &p_status2, 0); // é pretendido que seja blocante
 
     tabuleiro.~Board();
     return 0;

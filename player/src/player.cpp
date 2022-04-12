@@ -5,18 +5,34 @@ Player::Player(int id) {
     id_ = id;
 
     key_ = ftok(KEY_PATH, KEY_ID);
-    shm_id_ = shmget(key_, BOARD_SIZE*BOARD_SIZE * sizeof(int), 0666 | IPC_CREAT); 
+
     //0666 soma das permisões (permisão pra tudo)
     //IPC CREAT se não tem memória compartilhada com essa chave, cria
+    shm_id_ = shmget(key_, BOARD_SIZE*BOARD_SIZE * sizeof(int), 0666); 
+    sem_id_ = semget(key_, 2, 0666);
     
+
+    get_sem_.sem_op  = 0;
+    get_sem_.sem_flg = 0; // isso faz o meu processo ficar esperando caso semáforo esteja bloqueado
+
+    release_sem_.sem_op  = -1;
+    release_sem_.sem_flg = 0; // isso faz o meu processo ficar esperando caso semáforo esteja bloqueado
+    
+
+
+    /* inicializando com memória */
     slotss_ = (int*) shmat(shm_id_, NULL, 0);
-
     private_board_ = (int*) calloc(BOARD_SIZE*BOARD_SIZE, sizeof(int));
-    private_board_[3] = 1;
-    private_board_[60] = 2;
-
-    picked_pos_.push_back(std::pair<int, int>(0,3));
-
+    
+    /* marcando primeiras posições na memória privada */
+    if (id_ == 1) {
+        private_board_[3] = 1;
+        picked_pos_.push_back(std::pair<int, int>(0,3));
+    }
+    else if (id_ == 2) {
+        private_board_[60] = 2;
+        picked_pos_.push_back(std::pair<int, int>(7,4));
+    }
     pieces_counter_ = 0;
 }
 
@@ -223,13 +239,16 @@ int Player::MakeMove(int x, int y, int which_board) {
             printf("Switch case i != [-9..9]. Não era pra entrar aqui. i = %d\n", i);
             break;
         }
+        // pega semáforo
         slotss_[d+i] = id_;
+        // solta semáforo
         private_board_[d+i] = id_;
         picked_pos_.push_back(std::pair<int, int>(target_x, target_y));
+
         return 1;
     }
     else {
-        printf("Erro na função MakeMove, vou retonar 0. i = %d\n", i);
+        // printf("Erro na função MakeMove, vou retonar 0. i = %d\n", i);
     }
     // if (!which_board) {
     //     printf("peguei a memória compartilhada\n");
@@ -321,7 +340,7 @@ int Player::PickAMove(int x, int y, int which_board) {
                 // printf("estou na borda x = 0 mas não sou [0,0] ou [0,7]\n");
                 for (int i = -1; i <= 1; i++)
                 {
-                    printf("Estou dentro da função PickAMove. Valor de i = %d\n", i);
+                    // printf("Estou dentro da função PickAMove. Valor de i = %d\n", i);
                     if (board[d+i] == 0) {return i;}
                 }
 
@@ -375,15 +394,15 @@ void Player::Play(int which_board) {
     bool flag2;
 
     while(flag) {
-        printf("Entrei no while.\n");
+        // printf("Entrei no while.\n");
         for (auto it = picked_pos_.end() - 1; it != picked_pos_.begin() - 1; it--)
         {
             flag2 = true;
-            printf("Coordenada atual do vetor: [%d, %d]\n", it->first, it->second);
+            // printf("Coordenada atual do vetor: [%d, %d]\n", it->first, it->second);
             if (this->MakeMove(it->first, it->second, which_board))
             {
                 // this->PrintBoard(1);
-                printf("Marquei.\n");
+                // printf("Marquei.\n");
                 flag2 = false; // quero verificar se eu saí do loop por q marquei no tabuleiro e atualizei o vetor
                 sleep(2);
                 break;

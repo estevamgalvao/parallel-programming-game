@@ -5,7 +5,7 @@
 Board::Board() {
     key_ = ftok(KEY_PATH, KEY_ID);
 
-    shm_id_ = shmget(key_, BOARD_SIZE*BOARD_SIZE * sizeof(int), 0666 | IPC_CREAT); 
+    shm_id_ = shmget(key_, ((BOARD_SIZE*BOARD_SIZE) + 2) * sizeof(int), 0666 | IPC_CREAT); 
     //0666 soma das permisões (permisão pra tudo)
     //IPC CREAT se não tem memória compartilhada com essa chave, cria
     slotss_ = (int*) shmat(shm_id_, NULL, 0);
@@ -14,9 +14,17 @@ Board::Board() {
     {
         slotss_[i] = 0;
     }
+
+    /* semáforo */    
+    sem_id_ = semget(key_, 2, 0666 | IPC_CREAT); 
+
+
     /* initial positions hard coded - i can change that after if i've time*/
     slotss_[3] = 1;
     slotss_[60] = 2;
+    
+    slotss_[(BOARD_SIZE*BOARD_SIZE)] = 3;
+    slotss_[(BOARD_SIZE*BOARD_SIZE) + 1] = 60;
 };
 
 Board::~Board() {
