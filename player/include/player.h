@@ -25,7 +25,7 @@ class Player {
         virtual ~Player();
         int GetSemaphore();
         int ReleaseSemaphore();
-        bool VerifyMove(int x, int j, int which_board = 0);
+
         int MakeMove(int x, int j, int which_board = 0);
         void PrintBoard(int which_board = 0);
 

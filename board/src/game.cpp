@@ -30,7 +30,7 @@ int main()
     {
         // system("clear");
         tabuleiro.PrintBoard();
-        sleep(2);
+        sleep(1);
         i--;
     }
     

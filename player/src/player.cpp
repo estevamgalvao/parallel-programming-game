@@ -108,127 +108,6 @@ void Player::PrintBoard(int which_board) {
 
 };
 
-bool Player::VerifyMove(int x, int y, int which_board) {
-    int* board;
-    int d = 8 * x + y; // distance inside the memory array 1D as if it was 2D
-    if (!which_board) {
-        // printf("peguei a memória compartilhada\n");
-        board = slotss_;
-    }
-    else{
-        // printf("peguei o tabuleiro privado\n");
-        board = private_board_;
-    }
-
-    if (board[d] != 0)
-    {
-        // printf("Posição já ocupada.\n");
-        return false;
-    }
-    
-    /* not border spots */
-    if(x > 0 && y > 0 && x < BOARD_SIZE-1 && y < BOARD_SIZE-1) {
-        // printf("sou safe interno\n");
-        for (int i = -9; i <= -7; i++)
-        {
-            if (board[d+i] == id_) {return true;}
-        }
-
-        for (int i = -1; i <= 1; i++)
-        {
-            if (board[d+i] == id_) {return true;}
-        }
-
-        for (int i = 7; i <= 9; i++)
-        {
-            if (board[d+i] == id_) {return true;}
-        }
-    }
-
-    /* dealing with the 4 corner-spots*/
-    else if (x+y == 0) {                     // [0,0]
-        // printf("sou um canto [0,0]\n");
-        if (board[d+1] == id_) {return true;}
-        if (board[d+8] == id_) {return true;}
-        if (board[d+9] == id_) {return true;}
-    }
-
-    else if (x+y == BOARD_SIZE-1 && y > 0) { // [0,7]
-        // printf("sou um canto [0,7]\n");
-        if (board[d-1] == id_) {return true;}
-        if (board[d+7] == id_) {return true;}
-        if (board[d+8] == id_) {return true;}
-    }
-    
-    else if (x+y == BOARD_SIZE-1 && x > 0) { // [7,0]
-        // printf("sou um canto [7,0]\n");
-        if (board[d-8] == id_) {return true;}
-        if (board[d-7] == id_) {return true;}
-        if (board[d+1] == id_) {return true;}
-    }
-
-    else if (x+y == 2*(BOARD_SIZE-1)) {      // [7,7]
-        // printf("sou um canto [7,7]\n");
-        if (board[d-9] == id_) {return true;}
-        if (board[d-8] == id_) {return true;}
-        if (board[d-1] == id_) {return true;}
-    }
-
-    /* boundary spots but not corner*/
-    else {
-            if (x == 0) // [0, 1-6]
-            {
-                // printf("estou na borda x = 0 mas não sou [0,0] ou [0,7]\n");
-                for (int i = -1; i <= 1; i++)
-                {
-                    if (board[d+i] == id_) {return true;}
-                }
-
-                for (int i = 7; i <= 9; i++)
-                {
-                    if (board[d+i] == id_) {return true;}
-                }
-            }
-
-            else if (x == 7) // [7, 1-6]
-            {
-                // printf("estou na borda x = 7 mas não sou [7,0] ou [7,7]\n");
-                for (int i = -9; i <= -7; i++)
-                {
-                    if (board[d+i] == id_) {return true;}
-                }
-
-                for (int i = -1; i <= 1; i++)
-                {
-                    if (board[d+i] == id_) {return true;}
-                }
-            }
-
-            else if (y == 0) // [1-6, 0]
-            {
-                // printf("estou na borda y = 0 mas não sou [0,0] ou [7,0]\n");
-                if (board[d-8] == id_) {return true;}
-                if (board[d-7] == id_) {return true;}
-                if (board[d+1] == id_) {return true;}
-                if (board[d+8] == id_) {return true;}
-                if (board[d+9] == id_) {return true;}
-            }
-            
-            else if (y == 7) // [1-6, 7]
-            {
-                // printf("estou na borda y = 7 mas não sou [0,7] ou [7,7]\n");
-                if (board[d-9] == id_) {return true;}
-                if (board[d-8] == id_) {return true;}
-                if (board[d-1] == id_) {return true;}
-                if (board[d+7] == id_) {return true;}
-                if (board[d+8] == id_) {return true;}
-            }          
-    }
-    printf("sou o player %d e não consegui marcar\n", id_);
-    return false;
-};
-
-
 // ele vai ver se eu posso marcar no 0,0 se eu passar 0,0 para ele
 int Player::PickAMove(int x, int y, int which_board) {
     int* board;
@@ -411,10 +290,10 @@ int Player::MakeMove(int x, int y, int which_board) {
             printf("Switch case i != [-9..9]. Não era pra entrar aqui. i = %d\n", i);
             break;
         }
-        // pega semáforo
+        
         slotss_[d+i] = id_;
-        // solta semáforo
         private_board_[d+i] = id_;
+
         picked_pos_.push_back(std::pair<int, int>(target_x, target_y));
 
         return 1;
@@ -440,27 +319,35 @@ int Player::MakeMove(int x, int y, int which_board) {
 
 void Player::Play(int which_board) {
     bool flag = true;
-    bool flag2;
+    bool flag_append_new_pos;
+    int ret_makemove;
 
     while(flag) {
         // printf("Entrei no while.\n");
         for (auto it = picked_pos_.end() - 1; it != picked_pos_.begin() - 1; it--)
         {
-            flag2 = true;
+            printf("COORDENADA ATUAL - PLAYER %d: [%d, %d]\n", id_, it->first, it->second);
+            flag_append_new_pos = true;
             // printf("Coordenada atual do vetor: [%d, %d]\n", it->first, it->second);
             this->GetSemaphore();
-            if (this->MakeMove(it->first, it->second, which_board))
+            ret_makemove = this->MakeMove(it->first, it->second, which_board);
+            this->ReleaseSemaphore();
+
+            if (ret_makemove)
             {
-                this->ReleaseSemaphore();
                 // this->PrintBoard(1);
                 // printf("Marquei.\n");
-                flag2 = false; // quero verificar se eu saí do loop por q marquei no tabuleiro e atualizei o vetor
-                sleep(2);
+                flag_append_new_pos = false; // quero verificar se eu saí do loop por q marquei no tabuleiro e atualizei o vetor
+                sleep(1);
                 break;
             }
-
+            else {
+                printf("\n\nMAKE A MOVE Retornou 0. Não entrei no IF JOGADOR %d\n\n", id_);
+            }
         }
-        if (flag2) { // se a flag2 for false, significa q eu sai do for pq quis e não é pra sair o while, é pra varrer o for atualizado de novo 
+        // sleep(4);
+        printf("Break for -> while occoreu.\n");
+        if (flag_append_new_pos) { // se a flag_append_new_pos for false, significa q eu sai do for pq quis e não é pra sair o while, é pra varrer o for atualizado de novo 
             flag = false;
         }
     }
