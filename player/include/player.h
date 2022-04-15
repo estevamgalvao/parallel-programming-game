@@ -5,7 +5,7 @@
 #include "board.h"
 
 class Player {
-    private:
+    public:
         int id_;
         int pieces_counter_;
         
@@ -14,7 +14,7 @@ class Player {
         COORD_VECTOR picked_pos_;
         COORD_VECTOR blocked_pos_;
 
-        struct sembuf get_sem_, release_sem_;
+        struct sembuf sem_operations_[1];
 
         /* Atributes intended to establish the shared memory link */
         int shm_id_, sem_id_;
@@ -23,6 +23,8 @@ class Player {
     public:
         Player(int id);
         virtual ~Player();
+        int GetSemaphore();
+        int ReleaseSemaphore();
         bool VerifyMove(int x, int j, int which_board = 0);
         int MakeMove(int x, int j, int which_board = 0);
         void PrintBoard(int which_board = 0);

@@ -9,28 +9,28 @@ Player::Player(int id) {
     //0666 soma das permisões (permisão pra tudo)
     //IPC CREAT se não tem memória compartilhada com essa chave, cria
     shm_id_ = shmget(key_, BOARD_SIZE*BOARD_SIZE * sizeof(int), 0666); 
-    /* Always check system returns. */
-    if(shm_id_ < 0)
-    {
-      printf("Shared memory doens't exist. I'm player %d\n", id_);
-      exit(0);
-    }
+    sem_id_ = semget(key_, 2, 0666);
 
-    sem_id_ = semget(key_, 1, 0666);
-    /* Always check system returns. */
-    if(sem_id_ < 0)
-    {
-        printf("Semaphore doesn't exist. I'm player %d\n", id_);
-        exit(0);
-    }
+    get_sem_= (struct sembuf *) malloc(sizeof(*get_sem_));
+    release_sem_= (struct sembuf *) malloc(sizeof(*release_sem_));
+    
+    get_sem_->sem_num = 0;
+    get_sem_->sem_op  = -1;
+    get_sem_->sem_flg = 0; // isso faz o meu processo ficar esperando caso semáforo esteja bloqueado
 
-    /* identifier of this semaphore inside the array of sem */
-    sem_operations_[0].sem_num = 0;
-    /* which operation? subtract 1 (i'm getting busy) */
-    sem_operations_[0].sem_op = -1;
-    /* what should i do if its busy? wait (0) */
-    sem_operations_[0].sem_flg = 0;
+    release_sem_->sem_num = 0;
+    release_sem_->sem_op  = 1;
+    release_sem_->sem_flg = 0; // isso faz o meu processo ficar esperando caso semáforo esteja bloqueado
+    
+    // get_sem_.sem_num = 0;
+    // get_sem_.sem_op  = -1;
+    // get_sem_.sem_flg = 0; // isso faz o meu processo ficar esperando caso semáforo esteja bloqueado
 
+    // release_sem_.sem_num = 0;
+    // release_sem_.sem_op  = 1;
+    // release_sem_.sem_flg = 0; // isso faz o meu processo ficar esperando caso semáforo esteja bloqueado
+    
+    
     /* inicializando com memória */
     slotss_ = (int*) shmat(shm_id_, NULL, 0);
     private_board_ = (int*) calloc(BOARD_SIZE*BOARD_SIZE, sizeof(int));
@@ -50,31 +50,6 @@ Player::Player(int id) {
 Player::~Player() {
     shmdt(slotss_); //largando o ponteiro compartilhado (o pai que dá o free da memoria)
     // free(private_board_);
-}
-
-
-int Player::GetSemaphore() {
-    /* which operation? subtract 1 (i'm getting busy) */
-    sem_operations_[0].sem_op = -1;
-    int ret_op = semop(sem_id_, sem_operations_, 1);
-
-    if (ret_op < 0) {
-        printf("Algo inesperado aconteceu. Não aguardei o semáforo. Sou o player %d\n", id_);
-    }
-
-    return ret_op;
-}
-
-int Player::ReleaseSemaphore() {
-    /* which operation? sum 1 (i'm ceasing to be busy) */
-    sem_operations_[0].sem_op = 1;
-    int ret_op = semop(sem_id_, sem_operations_, 1);
-
-    if (ret_op < 0) {
-        printf("Algo inesperado aconteceu no ReleaseSemaphore. Sou o player %d\n", id_);
-    }
-    
-    return ret_op;
 }
 
 void Player::PrintBoard(int which_board) {
@@ -227,6 +202,81 @@ bool Player::VerifyMove(int x, int y, int which_board) {
     printf("sou o player %d e não consegui marcar\n", id_);
     return false;
 };
+//pega semáforo e solta apos a função de makemove
+int Player::MakeMove(int x, int y, int which_board) {
+    // int* board;
+    int d = 8 * x + y; // distance inside the memory array 1D as if it was 2D
+    //pega semáforo
+    int i = this->PickAMove(x, y, which_board);
+    //solta semáforo lá embaixo
+    int target_x, target_y;
+
+    printf("Valor recebido da função PickAMove, i = %d\n", i);
+
+    if(i) {
+        switch (i)
+        {
+        case -9:
+            target_x = x - 1;
+            target_y = y - 1;
+            break;
+        case -8:
+            target_x = x - 1;
+            target_y = y + 0;
+            break;
+        case -7:
+            target_x = x - 1;
+            target_y = y + 1;
+            break;
+        case -1:
+            target_x = x + 0;
+            target_y = y - 1;
+            break;
+        case +1:
+            target_x = x + 0;
+            target_y = y + 1;
+            break;
+        case +7:
+            target_x = x + 1;
+            target_y = y - 1;
+            break;
+        case +8:
+            target_x = x + 1;
+            target_y = y + 0;
+            break;
+        case +9:
+            target_x = x + 1;
+            target_y = y + 1;
+            break;
+        default:
+            printf("Switch case i != [-9..9]. Não era pra entrar aqui. i = %d\n", i);
+            break;
+        }
+        // pega semáforo
+        slotss_[d+i] = id_;
+        // solta semáforo
+        private_board_[d+i] = id_;
+        picked_pos_.push_back(std::pair<int, int>(target_x, target_y));
+
+        return 1;
+    }
+    else {
+        // printf("Erro na função MakeMove, vou retonar 0. i = %d\n", i);
+    }
+    // if (!which_board) {
+    //     printf("peguei a memória compartilhada\n");
+    // // board = slotss_;
+    //     slotss_[d] = id_;
+    //     return 1;
+    // }
+    // else {
+    // // printf("peguei o tabuleiro privado\n");
+    // // board = private_board_;
+    //     private_board_[d] = id_;
+    //     return 2;
+    // }        
+    return 0;
+}
 
 
 // ele vai ver se eu posso marcar no 0,0 se eu passar 0,0 para ele
@@ -348,94 +398,8 @@ int Player::PickAMove(int x, int y, int which_board) {
             }          
     }
     printf("sou o player %d e não consegui marcar\n", id_);
-    printf("minha última coordenada foi [%d, %d]\n", x, y);
-    
-    printf("VETOR DE COORDENADAS MARCADAS - Jogador %d\n", id_);
-    
-    for (size_t i = 0; i < picked_pos_.size(); i++)
-    {
-        printf("[%d, %d] ", picked_pos_[i].first,picked_pos_[i].second);
-    }
-
-    printf("\n");
-
     return 0;
 };
-
-int Player::MakeMove(int x, int y, int which_board) {
-    // int* board;
-    int d = 8 * x + y; // distance inside the memory array 1D as if it was 2D
-    //pega semáforo
-    int i = this->PickAMove(x, y, which_board);
-    //solta semáforo lá embaixo
-    int target_x, target_y;
-
-    printf("Valor recebido da função PickAMove, i = %d\n", i);
-
-    if(i) {
-        switch (i)
-        {
-        case -9:
-            target_x = x - 1;
-            target_y = y - 1;
-            break;
-        case -8:
-            target_x = x - 1;
-            target_y = y + 0;
-            break;
-        case -7:
-            target_x = x - 1;
-            target_y = y + 1;
-            break;
-        case -1:
-            target_x = x + 0;
-            target_y = y - 1;
-            break;
-        case +1:
-            target_x = x + 0;
-            target_y = y + 1;
-            break;
-        case +7:
-            target_x = x + 1;
-            target_y = y - 1;
-            break;
-        case +8:
-            target_x = x + 1;
-            target_y = y + 0;
-            break;
-        case +9:
-            target_x = x + 1;
-            target_y = y + 1;
-            break;
-        default:
-            printf("Switch case i != [-9..9]. Não era pra entrar aqui. i = %d\n", i);
-            break;
-        }
-        // pega semáforo
-        slotss_[d+i] = id_;
-        // solta semáforo
-        private_board_[d+i] = id_;
-        picked_pos_.push_back(std::pair<int, int>(target_x, target_y));
-
-        return 1;
-    }
-    else {
-        // printf("Erro na função MakeMove, vou retonar 0. i = %d\n", i);
-    }
-    // if (!which_board) {
-    //     printf("peguei a memória compartilhada\n");
-    // // board = slotss_;
-    //     slotss_[d] = id_;
-    //     return 1;
-    // }
-    // else {
-    // // printf("peguei o tabuleiro privado\n");
-    // // board = private_board_;
-    //     private_board_[d] = id_;
-    //     return 2;
-    // }        
-    return 0;
-}
 
 
 void Player::Play(int which_board) {
@@ -448,17 +412,14 @@ void Player::Play(int which_board) {
         {
             flag2 = true;
             // printf("Coordenada atual do vetor: [%d, %d]\n", it->first, it->second);
-            this->GetSemaphore();
             if (this->MakeMove(it->first, it->second, which_board))
             {
-                this->ReleaseSemaphore();
                 // this->PrintBoard(1);
                 // printf("Marquei.\n");
                 flag2 = false; // quero verificar se eu saí do loop por q marquei no tabuleiro e atualizei o vetor
                 sleep(2);
                 break;
             }
-
         }
         if (flag2) { // se a flag2 for false, significa q eu sai do for pq quis e não é pra sair o while, é pra varrer o for atualizado de novo 
             flag = false;

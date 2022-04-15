@@ -14,6 +14,7 @@
 #include <sys/shm.h>
 #include <unistd.h>
 #include <sys/sem.h>
+#include <errno.h>
 
 #define KEY_PATH "/mnt/e/UnB/SO/Trabalho 2/parallel-programming-game/board/src/game.cpp"
 #define KEY_ID 2807
