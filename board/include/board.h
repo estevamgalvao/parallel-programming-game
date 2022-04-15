@@ -7,15 +7,14 @@
 each possible game's slot */
 class Board {
     private:
-        std::array<std::array<int, BOARD_SIZE + 2>, BOARD_SIZE + 2> slots_;
         int *slotss_;
         int shm_id_, sem_id_;
         key_t key_;
 
-
     public:
         Board();
         virtual ~Board();
+        int* GetSlotss();
         void PrintBoard();
         bool VerifyMove(int x, int y, int player_id);
         void MakeMove(int x, int y, int player_id);

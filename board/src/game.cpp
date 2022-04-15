@@ -8,36 +8,35 @@ int main()
 
     tabuleiro.PrintBoard();
 
-    char* player_id1[] = {PLAYER_EXEC_PATH, "1", NULL}; //many warnings related to these lines
+    char* player_id1[] = {PLAYER_EXEC_PATH, "1", NULL};
     char* player_id2[] = {PLAYER_EXEC_PATH, "2", NULL};
     
+    /* forking the new processes and when they're done, executing the new exe files at PLAYER_EXEC_PATH */
     p_id1 = fork();
-
-    if (p_id1 == 0)
-    {
-        // system("gnome-terminal");
-        execvp(PLAYER_EXEC_PATH, player_id1);
-    }
+    if (p_id1 == 0) {execvp(PLAYER_EXEC_PATH, player_id1);}
 
     p_id2 = fork();
+    if (p_id2 == 0) {execvp(PLAYER_EXEC_PATH, player_id2);}
 
-    if (p_id2 == 0)
+    while (int i = 40 > 0)
     {
-        execvp(PLAYER_EXEC_PATH, player_id2);
-    }
-
-    while (int i = 64 > 0)
-    {
-        // system("clear");
         tabuleiro.PrintBoard();
-        sleep(1);
+        // sleep(1);
         i--;
+        if (tabuleiro.GetSlotss()[BOARD_SIZE*BOARD_SIZE] != 0) {
+            printf("Alguém escreveu.\n");
+            break;
+        }
     }
     
     printf("Acabou o jogo.\n");
 
-    waitpid(p_id1, &p_status1, 0); // é pretendido que seja blocante
-    waitpid(p_id2, &p_status2, 0); // é pretendido que seja blocante
+    /* waiting the return from the child processes */
+    waitpid(p_id1, &p_status1, 0);
+    waitpid(p_id2, &p_status2, 0);
+
+    printf("RETORNO PLAYER 1: %i\n", p_status1);
+    printf("RETORNO PLAYER 2: %i\n", p_status2);
 
     tabuleiro.~Board();
     return 0;

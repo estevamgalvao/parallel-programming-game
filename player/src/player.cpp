@@ -6,18 +6,19 @@ Player::Player(int id) {
 
     key_ = ftok(KEY_PATH, KEY_ID);
 
-    //0666 soma das permisões (permisão pra tudo)
-    //IPC CREAT se não tem memória compartilhada com essa chave, cria
-    shm_id_ = shmget(key_, BOARD_SIZE*BOARD_SIZE * sizeof(int), 0666); 
-    /* Always check system returns. */
+    /* get the shared memory with external key key_. Permissions = ALL. */
+    shm_id_ = shmget(key_, BOARD_SIZE*BOARD_SIZE * sizeof(int), 0666);
+
+    /* always check system returns. */
     if(shm_id_ < 0)
     {
       printf("Shared memory doens't exist. I'm player %d\n", id_);
       exit(0);
     }
 
+    /* get the semaphore with external key key_. Permissions = ALL. */
     sem_id_ = semget(key_, 1, 0666);
-    /* Always check system returns. */
+    /* always check system returns. */
     if(sem_id_ < 0)
     {
         printf("Semaphore doesn't exist. I'm player %d\n", id_);
@@ -31,20 +32,21 @@ Player::Player(int id) {
     /* what should i do if its busy? wait (0) */
     sem_operations_[0].sem_flg = 0;
 
-    /* inicializando com memória */
+    /* attach the shared memory to our atribute */
     slotss_ = (int*) shmat(shm_id_, NULL, 0);
+    /* initialize the private board for consistence checking purposes */
     private_board_ = (int*) calloc(BOARD_SIZE*BOARD_SIZE, sizeof(int));
     
-    /* marcando primeiras posições na memória privada */
+    /* tagging the initial pos on the private board as well */
     if (id_ == 1) {
-        private_board_[3] = 1;
-        picked_pos_.push_back(std::pair<int, int>(0,3));
+        private_board_[18] = 1;
+        picked_pos_.push_back(std::pair<int, int>(2,2));
     }
     else if (id_ == 2) {
-        private_board_[60] = 2;
-        picked_pos_.push_back(std::pair<int, int>(7,4));
+        private_board_[26] = 2;
+        picked_pos_.push_back(std::pair<int, int>(3,2));
     }
-    pieces_counter_ = 0;
+    pieces_counter_ = 1;
 }
 
 Player::~Player() {
@@ -52,6 +54,10 @@ Player::~Player() {
     // free(private_board_);
 }
 
+
+int Player::GetPiecesCounter() {
+    return pieces_counter_;
+}
 
 int Player::GetSemaphore() {
     /* which operation? subtract 1 (i'm getting busy) */
@@ -121,12 +127,6 @@ int Player::PickAMove(int x, int y, int which_board) {
         board = private_board_;
     }
 
-    // if (board[d] != 0)
-    // {
-    //     // printf("Posição já ocupada.\n");
-    //     return false;
-    // }
-    
     /* not border spots */
     if(x > 0 && y > 0 && x < BOARD_SIZE-1 && y < BOARD_SIZE-1) {
         // printf("sou safe interno\n");
@@ -226,30 +226,24 @@ int Player::PickAMove(int x, int y, int which_board) {
                 if (board[d+8] == 0) {return 8;}
             }          
     }
-    printf("sou o player %d e não consegui marcar\n", id_);
-    printf("minha última coordenada foi [%d, %d]\n", x, y);
+    // printf("sou o player %d e não consegui marcar\n", id_);
+    // printf("minha última coordenada foi [%d, %d]\n", x, y);
     
-    printf("VETOR DE COORDENADAS MARCADAS - Jogador %d\n", id_);
+    // printf("VETOR DE COORDENADAS MARCADAS - Jogador %d\n", id_);
     
-    for (size_t i = 0; i < picked_pos_.size(); i++)
-    {
-        printf("[%d, %d] ", picked_pos_[i].first,picked_pos_[i].second);
-    }
-
-    printf("\n");
-
+    // for (size_t i = 0; i < picked_pos_.size(); i++)
+    // {
+    //     printf("[%d, %d] ", picked_pos_[i].first,picked_pos_[i].second);
+    // }
     return 0;
 };
 
 int Player::MakeMove(int x, int y, int which_board) {
-    // int* board;
     int d = 8 * x + y; // distance inside the memory array 1D as if it was 2D
-    //pega semáforo
     int i = this->PickAMove(x, y, which_board);
-    //solta semáforo lá embaixo
     int target_x, target_y;
 
-    printf("Valor recebido da função PickAMove, i = %d\n", i);
+    // printf("Valor recebido da função PickAMove, i = %d\n", i);
 
     if(i) {
         switch (i)
@@ -295,24 +289,10 @@ int Player::MakeMove(int x, int y, int which_board) {
         private_board_[d+i] = id_;
 
         picked_pos_.push_back(std::pair<int, int>(target_x, target_y));
+        pieces_counter_ += 1;
 
         return 1;
     }
-    else {
-        // printf("Erro na função MakeMove, vou retonar 0. i = %d\n", i);
-    }
-    // if (!which_board) {
-    //     printf("peguei a memória compartilhada\n");
-    // // board = slotss_;
-    //     slotss_[d] = id_;
-    //     return 1;
-    // }
-    // else {
-    // // printf("peguei o tabuleiro privado\n");
-    // // board = private_board_;
-    //     private_board_[d] = id_;
-    //     return 2;
-    // }        
     return 0;
 }
 
@@ -326,7 +306,7 @@ void Player::Play(int which_board) {
         // printf("Entrei no while.\n");
         for (auto it = picked_pos_.end() - 1; it != picked_pos_.begin() - 1; it--)
         {
-            printf("COORDENADA ATUAL - PLAYER %d: [%d, %d]\n", id_, it->first, it->second);
+            // printf("COORDENADA ATUAL - PLAYER %d: [%d, %d]\n", id_, it->first, it->second);
             flag_append_new_pos = true;
             // printf("Coordenada atual do vetor: [%d, %d]\n", it->first, it->second);
             this->GetSemaphore();
@@ -335,23 +315,19 @@ void Player::Play(int which_board) {
 
             if (ret_makemove)
             {
-                // this->PrintBoard(1);
-                // printf("Marquei.\n");
-                flag_append_new_pos = false; // quero verificar se eu saí do loop por q marquei no tabuleiro e atualizei o vetor
-                sleep(1);
+                /* everytime that I append a new pos inside the vector, I want 
+                to restart the FOR but without getting out of the while, but if
+                I run throught the whole vector and couldn't find a free pos
+                to play, so then I want to exit the while as well */
+                flag_append_new_pos = false;
+                // sleep(1);
                 break;
             }
-            else {
-                printf("\n\nMAKE A MOVE Retornou 0. Não entrei no IF JOGADOR %d\n\n", id_);
-            }
         }
-        // sleep(4);
-        printf("Break for -> while occoreu.\n");
         if (flag_append_new_pos) { // se a flag_append_new_pos for false, significa q eu sai do for pq quis e não é pra sair o while, é pra varrer o for atualizado de novo 
             flag = false;
         }
     }
 
-    printf("\nParei de jogar. Não achei nenhuma posição válida no vetor.\n");
-    
+    slotss_[BOARD_SIZE * BOARD_SIZE] = id_;
 }

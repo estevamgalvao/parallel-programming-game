@@ -5,7 +5,7 @@
 #include "board.h"
 
 class Player {
-    public:
+    private:
         int id_;
         int pieces_counter_;
         
@@ -23,6 +23,9 @@ class Player {
     public:
         Player(int id);
         virtual ~Player();
+
+        int GetPiecesCounter();
+
         int GetSemaphore();
         int ReleaseSemaphore();
 
