@@ -29,12 +29,13 @@ class Player {
         int GetSemaphore();
         int ReleaseSemaphore();
 
-        int MakeMove(int x, int j, int which_board = 0);
         void PrintBoard(int which_board = 0);
 
-        void Play(int which_board = 0); //inicializar a primeira posição também
         int PickAMove(int x, int j, int which_board = 0);
+        int MakeMove(int x, int j, int which_board = 0);
+        void Play(int which_board = 0); //inicializar a primeira posição também
 
+        bool CheckConsistency();
 };
 
 #endif //PLAYER_H

@@ -17,8 +17,12 @@ int main(int argc, char const *argv[])
     printf("Jogador %d entrou no jogo.\n", player_id);
 
     player.Play();
+    if(player.CheckConsistency()) {
+        printf("Jogador %d possui as mesmas peças no tabuleiro público e privado.\n", player_id);
+    }
     
-    printf("\nParei de jogar. Marquei %d peças.\n", player.GetPiecesCounter());
+    printf("Jogador %d parou de jogar. Marcou %d peças.\n", player_id, player.GetPiecesCounter());
+
 
     // player.~Player();
     return player.GetPiecesCounter();

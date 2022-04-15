@@ -7,7 +7,7 @@ Board::Board() {
 
     /* create the semaphore with external key key_ if it doesn't already 
     exists. Permissions = ALL. */
-    shm_id_ = shmget(key_, ((BOARD_SIZE*BOARD_SIZE) + 1) * sizeof(int), 0666 | IPC_CREAT); 
+    shm_id_ = shmget(key_, ((BOARD_SIZE*BOARD_SIZE) + 2) * sizeof(int), 0666 | IPC_CREAT); 
     
     /* always check system returns. */
     if(shm_id_ < 0)
@@ -18,7 +18,7 @@ Board::Board() {
     
     slotss_ = (int*) shmat(shm_id_, NULL, 0);
 
-    for (size_t i = 0; i < (BOARD_SIZE*BOARD_SIZE) + 1; i++)
+    for (size_t i = 0; i < (BOARD_SIZE*BOARD_SIZE) + 2; i++)
     {
         slotss_[i] = 0;
     }

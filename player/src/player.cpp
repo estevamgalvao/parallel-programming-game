@@ -328,6 +328,30 @@ void Player::Play(int which_board) {
             flag = false;
         }
     }
+    switch (id_)
+    {
+    case 1:
+        slotss_[BOARD_SIZE * BOARD_SIZE] = id_;
+        break;
+    case 2:
+        slotss_[(BOARD_SIZE * BOARD_SIZE) + 1] = id_;
+        break;
+    default:
+        printf("ERROR - Player ID not recognized.\n");
+        break;
+    }
+    
+}
 
-    slotss_[BOARD_SIZE * BOARD_SIZE] = id_;
+bool Player::CheckConsistency() {
+    int d;
+    for (auto it = picked_pos_.end() - 1; it != picked_pos_.begin() - 1; it--)
+        {
+            /* distance inside the memory array 1D as if it was 2D */
+            d = 8 * it->first + it->second;
+            if (slotss_[d] != private_board_[d]) {
+                return false;
+            }
+        }
+    return true;
 }

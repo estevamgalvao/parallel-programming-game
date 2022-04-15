@@ -23,8 +23,9 @@ int main()
         tabuleiro.PrintBoard();
         // sleep(1);
         i--;
-        if (tabuleiro.GetSlotss()[BOARD_SIZE*BOARD_SIZE] != 0) {
-            printf("Alguém escreveu.\n");
+        if (tabuleiro.GetSlotss()[BOARD_SIZE*BOARD_SIZE] != 0 
+        && tabuleiro.GetSlotss()[(BOARD_SIZE*BOARD_SIZE) + 1] != 0) {
+            printf("Alguém venceu.\n");
             break;
         }
     }
@@ -34,9 +35,6 @@ int main()
     /* waiting the return from the child processes */
     waitpid(p_id1, &p_status1, 0);
     waitpid(p_id2, &p_status2, 0);
-
-    printf("RETORNO PLAYER 1: %i\n", p_status1);
-    printf("RETORNO PLAYER 2: %i\n", p_status2);
 
     tabuleiro.~Board();
     return 0;
