@@ -23,7 +23,5 @@ int main(int argc, char const *argv[])
     
     printf("Jogador %d parou de jogar. Marcou %d peças.\n", player_id, player.GetPiecesCounter());
 
-
-    // player.~Player();
     return player.GetPiecesCounter();
 }
