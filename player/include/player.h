@@ -12,7 +12,6 @@ class Player {
         int* slotss_;
         int* private_board_;
         COORD_VECTOR picked_pos_;
-        COORD_VECTOR blocked_pos_;
 
         struct sembuf sem_operations_[1];
 
@@ -26,8 +25,8 @@ class Player {
 
         int GetPiecesCounter();
 
-        int GetSemaphore();
-        int ReleaseSemaphore();
+        int GetSemaphore(int num_sem);
+        int ReleaseSemaphore(int num_sem);
 
         void PrintBoard(int which_board = 0);
 

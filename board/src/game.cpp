@@ -18,16 +18,18 @@ int main()
     p_id2 = fork();
     if (p_id2 == 0) {execvp(PLAYER_EXEC_PATH, player_id2);}
 
+    tabuleiro.GetSemaphore(1);
     while (true)
     {
         tabuleiro.PrintBoard();
-        // sleep(1);
+        sleep(1);
         if (tabuleiro.GetSlotss()[BOARD_SIZE*BOARD_SIZE] != 0 
         && tabuleiro.GetSlotss()[(BOARD_SIZE*BOARD_SIZE) + 1] != 0) {
             break;
         }
     }
-
+    tabuleiro.ReleaseSemaphore(1);
+    
     /* waiting the return from the child processes */
     waitpid(p_id1, &p_status1, 0);
     waitpid(p_id2, &p_status2, 0);
@@ -41,8 +43,6 @@ int main()
     else {
         printf("\nAcabou o jogo. Os jogadores empataram.\n");
     }
-
-    printf("Acabou o jogo.\n");
 
     tabuleiro.~Board();
     return 0;

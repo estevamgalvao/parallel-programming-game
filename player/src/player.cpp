@@ -17,7 +17,7 @@ Player::Player(int id) {
     }
 
     /* get the semaphore with external key key_. Permissions = ALL. */
-    sem_id_ = semget(key_, 1, 0666);
+    sem_id_ = semget(key_, 2, 0666);
     /* always check system returns. */
     if(sem_id_ < 0)
     {
@@ -59,8 +59,9 @@ int Player::GetPiecesCounter() {
     return pieces_counter_;
 }
 
-int Player::GetSemaphore() {
+int Player::GetSemaphore(int num_sem) {
     /* which operation? subtract 1 (i'm getting busy) */
+    sem_operations_[0].sem_num = num_sem;
     sem_operations_[0].sem_op = -1;
     int ret_op = semop(sem_id_, sem_operations_, 1);
 
@@ -71,8 +72,9 @@ int Player::GetSemaphore() {
     return ret_op;
 }
 
-int Player::ReleaseSemaphore() {
+int Player::ReleaseSemaphore(int num_sem) {
     /* which operation? sum 1 (i'm ceasing to be busy) */
+    sem_operations_[0].sem_num = num_sem;
     sem_operations_[0].sem_op = 1;
     int ret_op = semop(sem_id_, sem_operations_, 1);
 
@@ -309,9 +311,9 @@ void Player::Play(int which_board) {
             // printf("COORDENADA ATUAL - PLAYER %d: [%d, %d]\n", id_, it->first, it->second);
             flag_append_new_pos = true;
             // printf("Coordenada atual do vetor: [%d, %d]\n", it->first, it->second);
-            this->GetSemaphore();
+            this->GetSemaphore(0);
             ret_makemove = this->MakeMove(it->first, it->second, which_board);
-            this->ReleaseSemaphore();
+            this->ReleaseSemaphore(0);
 
             if (ret_makemove)
             {
@@ -320,7 +322,7 @@ void Player::Play(int which_board) {
                 I run throught the whole vector and couldn't find a free pos
                 to play, so then I want to exit the while as well */
                 flag_append_new_pos = false;
-                // sleep(1);
+                sleep(1);
                 break;
             }
         }

@@ -53,12 +53,22 @@ Board::Board() {
 
     if( semctl(sem_id_, 0, SETVAL, argument) < 0)
     {
-        fprintf( stderr, "Cannot set semaphore value.\n");
+        fprintf( stderr, "Cannot set semaphore 0 value.\n");
     }
     else
     {
-        fprintf(stderr, "Semaphore %d initialized.\n", key_);
+        fprintf(stderr, "Semaphore 0 %d initialized.\n", key_);
     }
+
+        if( semctl(sem_id_, 1, SETVAL, argument) < 0)
+    {
+        fprintf( stderr, "Cannot set semaphore 1 value.\n");
+    }
+    else
+    {
+        fprintf(stderr, "Semaphore 1 %d initialized.\n", key_);
+    }
+
 
     /* initial positions hard coded - i can change that after if i've time*/
     slotss_[18] = 1;
@@ -68,6 +78,32 @@ Board::Board() {
 Board::~Board() {
     shmdt(slotss_);
     shmctl(shm_id_, IPC_RMID, NULL);
+}
+
+int Board::GetSemaphore(int num_sem) {
+    /* which operation? subtract 1 (i'm getting busy) */
+    sem_operations_[0].sem_num = num_sem;
+    sem_operations_[0].sem_op = -1;
+    int ret_op = semop(sem_id_, sem_operations_, 1);
+
+    if (ret_op < 0) {
+        printf("Algo inesperado aconteceu. Não aguardei o semáforo. Sou o tabuleiro.\n");
+    }
+
+    return ret_op;
+}
+
+int Board::ReleaseSemaphore(int num_sem) {
+    /* which operation? sum 1 (i'm ceasing to be busy) */
+    sem_operations_[0].sem_num = num_sem;
+    sem_operations_[0].sem_op = 1;
+    int ret_op = semop(sem_id_, sem_operations_, 1);
+
+    if (ret_op < 0) {
+        printf("Algo inesperado aconteceu no ReleaseSemaphore. Sou o tabuleiro.\n");
+    }
+    
+    return ret_op;
 }
 
 int* Board::GetSlotss() {
