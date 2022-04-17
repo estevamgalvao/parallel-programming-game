@@ -5,7 +5,7 @@
 Board::Board() {
     key_ = ftok(KEY_PATH, KEY_ID);
 
-    /* create the semaphore with external key key_ if it doesn't already 
+    /* create the shared memory with external key key_ if it doesn't already 
     exists. Permissions = ALL. */
     shm_id_ = shmget(key_, ((BOARD_SIZE*BOARD_SIZE) + 2) * sizeof(int), 0666 | IPC_CREAT); 
     

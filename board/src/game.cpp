@@ -21,11 +21,10 @@ int main()
     while (int i = 40 > 0)
     {
         tabuleiro.PrintBoard();
-        sleep(1);
+        // sleep(1);
         i--;
         if (tabuleiro.GetSlotss()[BOARD_SIZE*BOARD_SIZE] != 0 
         && tabuleiro.GetSlotss()[(BOARD_SIZE*BOARD_SIZE) + 1] != 0) {
-            printf("Alguém venceu.\n");
             break;
         }
     }

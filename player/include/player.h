@@ -16,7 +16,7 @@ class Player {
 
         struct sembuf sem_operations_[1];
 
-        /* Atributes intended to establish the shared memory link */
+        /* Atributes intended to establish the shared memory and semaphore link */
         int shm_id_, sem_id_;
         key_t key_;
 
@@ -33,7 +33,7 @@ class Player {
 
         int PickAMove(int x, int j, int which_board = 0);
         int MakeMove(int x, int j, int which_board = 0);
-        void Play(int which_board = 0); //inicializar a primeira posição também
+        void Play(int which_board = 0);
 
         bool CheckConsistency();
 };

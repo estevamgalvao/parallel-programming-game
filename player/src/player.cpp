@@ -320,7 +320,7 @@ void Player::Play(int which_board) {
                 I run throught the whole vector and couldn't find a free pos
                 to play, so then I want to exit the while as well */
                 flag_append_new_pos = false;
-                sleep(1);
+                // sleep(1);
                 break;
             }
         }
@@ -331,10 +331,10 @@ void Player::Play(int which_board) {
     switch (id_)
     {
     case 1:
-        slotss_[BOARD_SIZE * BOARD_SIZE] = id_;
+        slotss_[BOARD_SIZE * BOARD_SIZE] = pieces_counter_;
         break;
     case 2:
-        slotss_[(BOARD_SIZE * BOARD_SIZE) + 1] = id_;
+        slotss_[(BOARD_SIZE * BOARD_SIZE) + 1] = pieces_counter_;
         break;
     default:
         printf("ERROR - Player ID not recognized.\n");

@@ -1,44 +1,15 @@
 #include "player.h"
 
 
-Player::Player(int id, int* board, pthread_mutex_t mutex) {
+Player::Player(int id, int* board, pthread_mutex_t *mutex) {
     id_ = id;
     slotss_ = board;
     mutex_ = mutex;
-    // key_ = ftok(KEY_PATH, KEY_ID);
 
-    // /* get the shared memory with external key key_. Permissions = ALL. */
-    // shm_id_ = shmget(key_, BOARD_SIZE*BOARD_SIZE * sizeof(int), 0666);
-
-    // /* always check system returns. */
-    // if(shm_id_ < 0)
-    // {
-    //   printf("Shared memory doens't exist. I'm player %d\n", id_);
-    //   exit(0);
-    // }
-
-    // /* get the semaphore with external key key_. Permissions = ALL. */
-    // sem_id_ = semget(key_, 1, 0666);
-    // /* always check system returns. */
-    // if(sem_id_ < 0)
-    // {
-    //     printf("Semaphore doesn't exist. I'm player %d\n", id_);
-    //     exit(0);
-    // }
-
-    // /* identifier of this semaphore inside the array of sem */
-    // sem_operations_[0].sem_num = 0;
-    // /* which operation? subtract 1 (i'm getting busy) */
-    // sem_operations_[0].sem_op = -1;
-    // /* what should i do if its busy? wait (0) */
-    // sem_operations_[0].sem_flg = 0;
-
-    /* attach the shared memory to our atribute */
-    // slotss_ = (int*) shmat(shm_id_, NULL, 0);
     /* initialize the private board for consistence checking purposes */
     private_board_ = (int*) calloc(BOARD_SIZE*BOARD_SIZE, sizeof(int));
     
-    /* tagging the initial pos on the private board as well */
+    /* tagging the initial pos on the private board */
     if (id_ == 1) {
         private_board_[18] = 1;
         picked_pos_.push_back(std::pair<int, int>(2,2));
@@ -51,8 +22,7 @@ Player::Player(int id, int* board, pthread_mutex_t mutex) {
 }
 
 Player::~Player() {
-    shmdt(slotss_); //largando o ponteiro compartilhado (o pai que dá o free da memoria)
-    // free(private_board_);
+    free(private_board_);
 }
 
 
@@ -287,9 +257,9 @@ void Player::Play(int which_board) {
             // printf("COORDENADA ATUAL - PLAYER %d: [%d, %d]\n", id_, it->first, it->second);
             flag_append_new_pos = true;
             // printf("Coordenada atual do vetor: [%d, %d]\n", it->first, it->second);
-            pthread_mutex_lock(&mutex_);
+            pthread_mutex_lock(mutex_);
             ret_makemove = this->MakeMove(it->first, it->second, which_board);
-            pthread_mutex_unlock(&mutex_);
+            pthread_mutex_unlock(mutex_);
 
             if (ret_makemove)
             {
@@ -298,7 +268,7 @@ void Player::Play(int which_board) {
                 I run throught the whole vector and couldn't find a free pos
                 to play, so then I want to exit the while as well */
                 flag_append_new_pos = false;
-                sleep(1);
+                // sleep(1);
                 break;
             }
         }
@@ -309,10 +279,10 @@ void Player::Play(int which_board) {
     switch (id_)
     {
     case 1:
-        slotss_[BOARD_SIZE * BOARD_SIZE] = id_;
+        slotss_[BOARD_SIZE * BOARD_SIZE] = pieces_counter_;
         break;
     case 2:
-        slotss_[(BOARD_SIZE * BOARD_SIZE) + 1] = id_;
+        slotss_[(BOARD_SIZE * BOARD_SIZE) + 1] = pieces_counter_;
         break;
     default:
         printf("ERROR - Player ID not recognized.\n");
@@ -323,12 +293,14 @@ void Player::Play(int which_board) {
 
 bool Player::CheckConsistency() {
     int d;
-    
+
     for (auto it = picked_pos_.end() - 1; it != picked_pos_.begin() - 1; it--)
         {
             /* distance inside the memory array 1D as if it was 2D */
             d = 8 * it->first + it->second;
             if (slotss_[d] != private_board_[d]) {
+                printf("Incosistência jogador %d: slots[%d, %d] = %d || pboard[%d, %d] = %d.\n",
+                id_, it->first, it->second, slotss_[d], it->first, it->second, private_board_[d]);
                 return false;
             }
         }
