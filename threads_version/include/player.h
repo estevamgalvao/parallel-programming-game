@@ -12,16 +12,9 @@ class Player {
         int* slotss_;
         int* private_board_;
         COORD_VECTOR picked_pos_;
-        COORD_VECTOR blocked_pos_;
-
-        struct sembuf sem_operations_[1];
-
-        /* Atributes intended to establish the shared memory link */
-        int shm_id_, sem_id_;
-        key_t key_;
 
     public:
-        Player(int id);
+        Player(int id, int* board);
         virtual ~Player();
 
         int GetPiecesCounter();

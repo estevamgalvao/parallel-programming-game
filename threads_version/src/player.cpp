@@ -1,39 +1,39 @@
 #include "player.h"
 
 
-Player::Player(int id) {
+Player::Player(int id, int* board) {
     id_ = id;
+    slotss_ = board;
+    // key_ = ftok(KEY_PATH, KEY_ID);
 
-    key_ = ftok(KEY_PATH, KEY_ID);
+    // /* get the shared memory with external key key_. Permissions = ALL. */
+    // shm_id_ = shmget(key_, BOARD_SIZE*BOARD_SIZE * sizeof(int), 0666);
 
-    /* get the shared memory with external key key_. Permissions = ALL. */
-    shm_id_ = shmget(key_, BOARD_SIZE*BOARD_SIZE * sizeof(int), 0666);
+    // /* always check system returns. */
+    // if(shm_id_ < 0)
+    // {
+    //   printf("Shared memory doens't exist. I'm player %d\n", id_);
+    //   exit(0);
+    // }
 
-    /* always check system returns. */
-    if(shm_id_ < 0)
-    {
-      printf("Shared memory doens't exist. I'm player %d\n", id_);
-      exit(0);
-    }
+    // /* get the semaphore with external key key_. Permissions = ALL. */
+    // sem_id_ = semget(key_, 1, 0666);
+    // /* always check system returns. */
+    // if(sem_id_ < 0)
+    // {
+    //     printf("Semaphore doesn't exist. I'm player %d\n", id_);
+    //     exit(0);
+    // }
 
-    /* get the semaphore with external key key_. Permissions = ALL. */
-    sem_id_ = semget(key_, 1, 0666);
-    /* always check system returns. */
-    if(sem_id_ < 0)
-    {
-        printf("Semaphore doesn't exist. I'm player %d\n", id_);
-        exit(0);
-    }
-
-    /* identifier of this semaphore inside the array of sem */
-    sem_operations_[0].sem_num = 0;
-    /* which operation? subtract 1 (i'm getting busy) */
-    sem_operations_[0].sem_op = -1;
-    /* what should i do if its busy? wait (0) */
-    sem_operations_[0].sem_flg = 0;
+    // /* identifier of this semaphore inside the array of sem */
+    // sem_operations_[0].sem_num = 0;
+    // /* which operation? subtract 1 (i'm getting busy) */
+    // sem_operations_[0].sem_op = -1;
+    // /* what should i do if its busy? wait (0) */
+    // sem_operations_[0].sem_flg = 0;
 
     /* attach the shared memory to our atribute */
-    slotss_ = (int*) shmat(shm_id_, NULL, 0);
+    // slotss_ = (int*) shmat(shm_id_, NULL, 0);
     /* initialize the private board for consistence checking purposes */
     private_board_ = (int*) calloc(BOARD_SIZE*BOARD_SIZE, sizeof(int));
     
@@ -59,29 +59,6 @@ int Player::GetPiecesCounter() {
     return pieces_counter_;
 }
 
-int Player::GetSemaphore() {
-    /* which operation? subtract 1 (i'm getting busy) */
-    sem_operations_[0].sem_op = -1;
-    int ret_op = semop(sem_id_, sem_operations_, 1);
-
-    if (ret_op < 0) {
-        printf("Algo inesperado aconteceu. Não aguardei o semáforo. Sou o player %d\n", id_);
-    }
-
-    return ret_op;
-}
-
-int Player::ReleaseSemaphore() {
-    /* which operation? sum 1 (i'm ceasing to be busy) */
-    sem_operations_[0].sem_op = 1;
-    int ret_op = semop(sem_id_, sem_operations_, 1);
-
-    if (ret_op < 0) {
-        printf("Algo inesperado aconteceu no ReleaseSemaphore. Sou o player %d\n", id_);
-    }
-    
-    return ret_op;
-}
 
 void Player::PrintBoard(int which_board) {
 
@@ -309,9 +286,9 @@ void Player::Play(int which_board) {
             // printf("COORDENADA ATUAL - PLAYER %d: [%d, %d]\n", id_, it->first, it->second);
             flag_append_new_pos = true;
             // printf("Coordenada atual do vetor: [%d, %d]\n", it->first, it->second);
-            this->GetSemaphore();
+            // this->GetSemaphore();
             ret_makemove = this->MakeMove(it->first, it->second, which_board);
-            this->ReleaseSemaphore();
+            // this->ReleaseSemaphore();
 
             if (ret_makemove)
             {

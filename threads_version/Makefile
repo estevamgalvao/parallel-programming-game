@@ -1,6 +1,6 @@
 
 CXX = g++
-CXXFLAGS = -W -Wall -std=c++11 -lm -g -I$(IDIR)
+CXXFLAGS = -W -Wall -std=c++11 -lm -g -I$(IDIR) -lpthread
 
 SDIR = src
 IDIR = include
@@ -14,7 +14,7 @@ _OBJ = $(patsubst %.cpp,%.o,$(wildcard $(SDIR)/*.cpp))
 OBJ = $(patsubst $(SDIR)/%,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
-	$(CXX) -c -o $@ $< $(CXXFLAGS)
+	$(CXX) -c -o $@ $< $(CXXFLAGS) 
 
 $(NAME): $(OBJ)
 	$(CXX) -o $@ $^ $(CXXFLAGS)

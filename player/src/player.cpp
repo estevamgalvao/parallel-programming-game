@@ -320,7 +320,7 @@ void Player::Play(int which_board) {
                 I run throught the whole vector and couldn't find a free pos
                 to play, so then I want to exit the while as well */
                 flag_append_new_pos = false;
-                // sleep(1);
+                sleep(1);
                 break;
             }
         }
