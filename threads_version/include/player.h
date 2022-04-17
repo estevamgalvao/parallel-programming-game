@@ -13,8 +13,10 @@ class Player {
         int* private_board_;
         COORD_VECTOR picked_pos_;
 
+        pthread_mutex_t mutex_;
+
     public:
-        Player(int id, int* board);
+        Player(int id, int* board, pthread_mutex_t mutex);
         virtual ~Player();
 
         int GetPiecesCounter();

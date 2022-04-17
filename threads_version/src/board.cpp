@@ -2,7 +2,8 @@
 #include "definitions.h"
 
 
-Board::Board() {
+Board::Board(int* board) {
+    slotss_ = board;
     // key_ = ftok(KEY_PATH, KEY_ID);
 
     /* create the semaphore with external key key_ if it doesn't already 

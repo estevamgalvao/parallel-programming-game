@@ -12,7 +12,7 @@ class Board {
         key_t key_;
 
     public:
-        Board();
+        Board(int* board);
         virtual ~Board();
         int* GetSlotss();
         void PrintBoard();

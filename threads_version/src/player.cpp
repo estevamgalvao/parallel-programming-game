@@ -1,9 +1,10 @@
 #include "player.h"
 
 
-Player::Player(int id, int* board) {
+Player::Player(int id, int* board, pthread_mutex_t mutex) {
     id_ = id;
     slotss_ = board;
+    mutex_ = mutex;
     // key_ = ftok(KEY_PATH, KEY_ID);
 
     // /* get the shared memory with external key key_. Permissions = ALL. */
@@ -286,9 +287,9 @@ void Player::Play(int which_board) {
             // printf("COORDENADA ATUAL - PLAYER %d: [%d, %d]\n", id_, it->first, it->second);
             flag_append_new_pos = true;
             // printf("Coordenada atual do vetor: [%d, %d]\n", it->first, it->second);
-            // this->GetSemaphore();
+            pthread_mutex_lock(&mutex_);
             ret_makemove = this->MakeMove(it->first, it->second, which_board);
-            // this->ReleaseSemaphore();
+            pthread_mutex_unlock(&mutex_);
 
             if (ret_makemove)
             {
@@ -297,7 +298,7 @@ void Player::Play(int which_board) {
                 I run throught the whole vector and couldn't find a free pos
                 to play, so then I want to exit the while as well */
                 flag_append_new_pos = false;
-                // sleep(1);
+                sleep(1);
                 break;
             }
         }
@@ -322,6 +323,7 @@ void Player::Play(int which_board) {
 
 bool Player::CheckConsistency() {
     int d;
+    
     for (auto it = picked_pos_.end() - 1; it != picked_pos_.begin() - 1; it--)
         {
             /* distance inside the memory array 1D as if it was 2D */
